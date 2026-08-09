@@ -8,7 +8,16 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User getUser(){
-        return userRepository.findAll().getFirst();
-    }
+
+    public User getUser(Long id){
+        User user = userRepository.findById(id).orElse(null);
+        if(user == null){
+            return null;
+        }
+        return user;
+    };
+
+
+
+
 }
