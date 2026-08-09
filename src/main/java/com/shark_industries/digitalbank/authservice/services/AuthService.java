@@ -24,15 +24,28 @@ public class AuthService {
     }
     //подсмотрел
     public boolean login(String login, String password){
-        Optional<User> userOptioanl = userRepository.findByUsername(login);
+        Optional<User> userOptional = userRepository.findByUsername(login);
 
-        if (userOptioanl.isEmpty()){
+        if (userOptional.isEmpty()){
             return false;
         }
 
-        User user = userOptioanl.get();
+        User user = userOptional.get();
         //matches
         return encoder.matches(password, user.getPassword());
+    }
+
+    public User register(String login, String password){
+        User user = new User();
+        if((!login.isEmpty()) && (!password.isEmpty())){
+
+
+            user.setUsername(login);
+            user.setPassword(encode(password));
+
+
+        }
+        return  userRepository.save(user);
     }
 
 

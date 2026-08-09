@@ -1,12 +1,9 @@
 package com.shark_industries.digitalbank.authservice.model;
 
 import jakarta.persistence.*;
-import jdk.jfr.Enabled;
 import lombok.Data;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
 @Getter
 @Entity
 @Data
@@ -16,7 +13,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userid;
     @Column(name = "firstname")
-    private String firstname;
+    private String username;
     @Column(name = "lastname")
     private String lastname;
     @Column

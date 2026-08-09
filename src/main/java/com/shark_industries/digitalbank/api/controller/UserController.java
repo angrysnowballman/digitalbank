@@ -34,4 +34,11 @@ public class UserController {
         return "Неверный username или password";
     };
 
+    @PostMapping("/registration")
+    public User registrUser(@RequestParam String username,
+                              @RequestParam String password) {
+        return authService.register(username, password);
+    }
+
+
 }
