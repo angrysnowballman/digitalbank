@@ -1,12 +1,14 @@
 package com.shark_industries.digitalbank.authservice.model;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
 @Getter
 @Entity
 @Data
+@Builder
 @Table(name = "users")
 public class User {
     @Id
