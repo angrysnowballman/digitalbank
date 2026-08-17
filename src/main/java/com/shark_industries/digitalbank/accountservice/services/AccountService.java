@@ -7,6 +7,8 @@ import com.shark_industries.digitalbank.accountservice.enums.Currency;
 
 import java.math.BigDecimal;
 
+import org.springframework.stereotype.Service;
+@Service
 public class AccountService {
     private final AccountRepository accountRepository;
 
