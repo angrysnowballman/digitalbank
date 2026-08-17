@@ -1,58 +1,64 @@
 package com.shark_industries.digitalbank.authservice.services;
 
-import com.shark_industries.digitalbank.api.controller.RegistrationRequest;
+import com.shark_industries.digitalbank.api.controller.AuthRequest;
+import com.shark_industries.digitalbank.api.controller.LoginResponse;
 import com.shark_industries.digitalbank.api.controller.RegistrationResponse;
 import com.shark_industries.digitalbank.authservice.model.User;
 import com.shark_industries.digitalbank.authservice.model.UserRepository;
 import com.shark_industries.digitalbank.exception.UserAlreadyExistsException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.rmi.AlreadyBoundException;
+
 import java.util.Optional;
-import java.util.Scanner;
 
 @Service
 public class AuthService {
-    @Autowired
-    private UserRepository userRepository;
-    private  BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    private final UserRepository userRepository;
+    private  final PasswordEncoder bCryptPasswordEncoder;
+    private  final  JwtService jwtService;
+
+    public AuthService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder, JwtService jwtService) {
+        this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtService = jwtService;
+    }
 
     @Transactional
-    public RegistrationResponse register(RegistrationRequest request){
-        if(userRepository.findByUsername(request.username())){
-            throw new UserAlreadyExistsException("User with username '%s' already exists")
-//                            .formatted(request.username());
-        });
+    public RegistrationResponse register(AuthRequest request){
+        User user = userRepository.findByFirstname(request.username()).orElse(null);
+        if(user != null){
+            throw new UserAlreadyExistsException("User with username '%s' already exists".formatted(request.username()));
 
-        User user = User.builder().username(request.username()).password(bCryptPasswordEncoder.encode(request.password())).build();
+        }
+
+        user = User.builder().firstname(request.username()).password(bCryptPasswordEncoder.encode(request.password())).build();
 
 
         User savedUser = userRepository.save(user);
 
-        return  new RegistrationResponse(savedUser.getUserid(), savedUser.getUsername());
+        return  new RegistrationResponse(savedUser.getUserid(), savedUser.getFirstname());
     }
 
-    public String login(String username, String password){
-        Optional<User> optionalUser = userRepository.findByUsername(username);
+    //Добавить из контроллера
+    public LoginResponse  login(AuthRequest request){
+        User user = userRepository.findByFirstname(request.username()).orElse(null);
 
-        if(optionalUser.isEmpty()){
-            return "Юзер не найден";
+        if(user == null){
+            throw new RuntimeException("Юзер не найден");
         }
 
-        //На кой хер тут это????
-        User user = optionalUser.get();
-
-       if(bCryptPasswordEncoder.matches(password, user.getPassword())){
-           return  "Логин успешен";
+       if(!bCryptPasswordEncoder.matches(request.password(), user.getPassword())){
+           throw new RuntimeException("Wrong password");
        }
-       return "Wrong password";
-    }
 
+       String token = jwtService.generateToken(user.getFirstname());
+
+       return new LoginResponse(token);
+
+    }
 
 }

@@ -1,31 +1,34 @@
 package com.shark_industries.digitalbank.api.controller;
 
 import com.shark_industries.digitalbank.authservice.services.AuthService;
-import jakarta.servlet.Registration;
-import jakarta.validation.Valid;
-import org.springframework.data.repository.query.Param;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.shark_industries.digitalbank.api.controller.LoginResponse;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthService authService = new AuthService();
+    //Запомнить создавать без присваивания
+    private final AuthService authService;
 
      public AuthController(AuthService authService){
         this.authService = authService;
     }
 
-    @PostMapping("/api/registration")
-    public ResponseEntity<RegistrationResponse> registration(@Valid @RequestBody RegistrationRequest request){
-        RegistrationRequest response = authService.register(request);
-                return response()
+    @PostMapping("/registration")
+    public ResponseEntity<RegistrationResponse> registration(@RequestBody AuthRequest request){
+        RegistrationResponse response = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
     };
 
     @PostMapping("/login")
-    public String login(@RequestParam String username, @RequestParam String password){
-        return authService.login(username, password);
+    public ResponseEntity<LoginResponse> login(@RequestBody AuthRequest request){
+        LoginResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
     }
 
 }
