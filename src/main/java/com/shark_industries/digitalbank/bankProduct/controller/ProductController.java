@@ -2,26 +2,32 @@ package com.shark_industries.digitalbank.bankProduct.controller;
 
 
 import com.shark_industries.digitalbank.bankProduct.model.BankProduct;
+import com.shark_industries.digitalbank.bankProduct.productState.ProductState;
 import com.shark_industries.digitalbank.bankProduct.service.ProductService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/products")
 public class ProductController {
-    private final BankProduct bankProduct;
     private final ProductService productService;
 
-    public ProductController(BankProduct bankProduct, ProductService productService) {
-        this.bankProduct = bankProduct;
+    //CreateProduct (id)
+
+    public ProductController(ProductService productService) {
         this.productService = productService;
     }
 
-    @GetMapping("/products/get/{id}")
-    public Long getProduct(@PathVariable Long id) {
-        return productService.getProductById(id);
+    @GetMapping("/get/{id}")
+    public ResponseEntity<BankProduct> getProductById(@PathVariable Long id) {
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
+    @PatchMapping("/{id}/status/{status}")
+    public ResponseEntity<?> updateProductStatus(@PathVariable Long id, @PathVariable ProductState status) {
+        productService.changeStateProduct(id, status);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 

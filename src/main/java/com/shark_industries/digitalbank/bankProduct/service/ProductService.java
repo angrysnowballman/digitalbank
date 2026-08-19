@@ -1,14 +1,19 @@
 package com.shark_industries.digitalbank.bankProduct.service;
 
-import com.shark_industries.digitalbank.authservice.model.User;
 import com.shark_industries.digitalbank.bankProduct.model.BankProduct;
+import com.shark_industries.digitalbank.bankProduct.model.ProductRepository;
 import com.shark_industries.digitalbank.bankProduct.productState.ProductState;
-import jakarta.persistence.Id;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class ProductService {
 
-    private final BankProduct bankProduct;
+    private final ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+
+    }
 
     public BankProduct createProduct(BankProduct bankProduct) {
         if (bankProduct != null) {
@@ -24,17 +29,15 @@ public class ProductService {
                 .productOwner(bankProduct.getProductOwner())
                 .build();
 
-        return prproduct;
+        return product;
 
     }
 
-
-
-    public Long getProductById(Long id) {
-        return product.getId();
+    public BankProduct getProductById(Long id) {
+        return productRepository.findById(id).orElse(null);
     }
 
-    public void terminateProduct(String productId) {
-        getProduct(productId).setStatus(ProductState.CLOSED);
+    public void changeStateProduct(Long productId, ProductState state) {
+        getProductById(productId).setProductState(state);
     }
 }

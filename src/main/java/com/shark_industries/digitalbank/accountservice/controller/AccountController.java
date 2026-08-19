@@ -25,4 +25,9 @@ public class AccountController {
         Account account = accountService.createAccount(user);
         return ResponseEntity.ok(account);
     }
+
+    @GetMapping("/accounts/{id}")
+    public ResponseEntity<Account> getAccount(@PathVariable Long id) {
+        return ResponseEntity.ok(accountService.getAccountById(id));
+    }
 }

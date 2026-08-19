@@ -46,6 +46,14 @@ public class AccountService {
         return (toUser.getAccountId() + " " + toUser.getFirstname() + " пополнил счет на " + toUser.getBalance());
     }
 
+    public Account getAccountById(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        return accountRepository.findById(id).orElse(null);
+    }
+
 
 }
 

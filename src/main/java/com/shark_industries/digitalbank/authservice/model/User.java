@@ -3,11 +3,11 @@ package com.shark_industries.digitalbank.authservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
+
 @Entity
 @Data
 @Builder
-@Table(name = "users")
+@Table(name = "bank_users")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -19,6 +19,5 @@ public class User {
     private String lastname;
     @Column
     private String password;
-
 
 }

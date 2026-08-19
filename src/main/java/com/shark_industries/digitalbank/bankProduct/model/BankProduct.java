@@ -21,7 +21,8 @@ public class BankProduct {
     private String productName;
     private Double productPrice;
     private ProductState productState;
-    @Id
     private Long productOwnerId;
+    @ManyToOne
+    @JoinColumn(name = "product_owner")
     private User productOwner;
 }
