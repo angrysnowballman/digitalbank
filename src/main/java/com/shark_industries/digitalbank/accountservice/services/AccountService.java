@@ -29,5 +29,23 @@ public class AccountService {
 
         return accountRepository.save(account);
     }
+
+    public String transfer(Long fromId, Long toId, BigDecimal amount) {
+        Account fromUser = accountRepository.findById(fromId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+        Account toUser = accountRepository.findById(toId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        if(fromUser.getBalance().compareTo(amount) >= 0) {
+            toUser.setBalance(toUser.getBalance().add(amount));
+            fromUser.setBalance(fromUser.getBalance().subtract(amount));
+            //подсмотрел
+            accountRepository.save(fromUser);
+            accountRepository.save(toUser);
+        }
+        return (toUser.getAccountId() + " " + toUser.getFirstname() + " пополнил счет на " + toUser.getBalance());
+    }
+
+
 }
 
