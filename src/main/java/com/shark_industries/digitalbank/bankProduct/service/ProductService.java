@@ -10,13 +10,28 @@ public class ProductService {
 
     private final BankProduct bankProduct;
 
-    public ProductService(BankProduct bankProduct) {
-        this.bankProduct = bankProduct;
+    public BankProduct createProduct(BankProduct bankProduct) {
+        if (bankProduct != null) {
+            throw new RuntimeException("Product cannot be null");
+        }
+
+        BankProduct product = BankProduct.builder()
+                .productId(bankProduct.getProductId())
+                .productName(bankProduct.getProductName())
+                .productPrice(bankProduct.getProductPrice())
+                .productState(bankProduct.getProductState())
+                .productOwnerId(bankProduct.getProductOwnerId())
+                .productOwner(bankProduct.getProductOwner())
+                .build();
+
+        return prproduct;
+
     }
 
 
+
     public Long getProductById(Long id) {
-        return bankProduct.;
+        return product.getId();
     }
 
     public void terminateProduct(String productId) {
