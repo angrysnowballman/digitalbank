@@ -50,7 +50,6 @@ public class AccountService {
         if (id == null) {
             return null;
         }
-
         return accountRepository.findById(id).orElse(null);
     }
 
