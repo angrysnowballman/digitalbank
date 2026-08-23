@@ -6,6 +6,7 @@ import com.shark_industries.digitalbank.authservice.model.User;
 import com.shark_industries.digitalbank.accountservice.enums.Currency;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 @Service
@@ -27,30 +28,48 @@ public class AccountService {
                 .currency(Currency.USD)
                 .build();
 
-        return accountRepository.save(account);
+        return saveAccount(account);
     }
 
-    public String transfer(Long fromId, Long toId, BigDecimal amount) {
-        Account fromUser = accountRepository.findById(fromId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-        Account toUser = accountRepository.findById(toId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
-
-        if(fromUser.getBalance().compareTo(amount) >= 0) {
-            toUser.setBalance(toUser.getBalance().add(amount));
-            fromUser.setBalance(fromUser.getBalance().subtract(amount));
-            //подсмотрел
-            accountRepository.save(fromUser);
-            accountRepository.save(toUser);
-        }
-        return (toUser.getAccountId() + " " + toUser.getFirstname() + " пополнил счет на " + toUser.getBalance());
-    }
+//    public String transfer(Long fromId, Long toId, BigDecimal amount) {
+//        Account fromUser = accountRepository.findById(fromId).orElse(null);
+//        if(fromUser==null){
+//            return "fromId user not found";
+//        }
+//        Account toUser = accountRepository.findById(toId).orElse(null);
+//        if(toUser==null){
+//            return "UserClient not found";
+//        }
+//
+//        if(fromUser.getBalance().compareTo(amount) >= 0) {
+//            toUser.setBalance(toUser.getBalance().add(amount));
+//            fromUser.setBalance(fromUser.getBalance().subtract(amount));
+//            //подсмотрел
+//            accountRepository.save(fromUser);
+//            accountRepository.save(toUser);
+//        }
+//        return (toUser.getAccountId() + " " + toUser.getFirstname() + " пополнил счет на " + toUser.getBalance());
+//    }
 
     public Account getAccountById(Long id) {
         if (id == null) {
             return null;
         }
         return accountRepository.findById(id).orElse(null);
+    }
+
+    public Account saveAccount(Account account) {
+        if (account != null) {
+            return accountRepository.save(account);
+        }
+        return null;
+    }
+
+    public Account getAccountByUUID(UUID uuid) {
+        if (uuid  == null) {
+            return null;
+        }
+        return accountRepository.findByUuid(uuid).orElse(null);
     }
 
 

@@ -48,24 +48,25 @@ public class ProductService {
     }
 
     public BankProduct createProduct(Long userId, String productName,  Double productPrice) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
 
-        BankProduct bankProduct = BankProduct.builder()
-                .productName(productName)
-                .productPrice(productPrice)
-                .productState(ProductState.ACTIVE)
-                .productOwner(user)
-                .build();
-
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return new BankProduct();
+        }
+            BankProduct bankProduct = BankProduct.builder()
+                    .productName(productName)
+                    .productPrice(productPrice)
+                    .productState(ProductState.ACTIVE)
+                    .productOwner(user)
+                    .build();
         return productRepository.save(bankProduct);
-
     }
 
     public BankProduct closeProduct(Long productId) {
-        BankProduct bankProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found"));  // ← здесь нужна ;
-
+        BankProduct bankProduct = getProductById(productId);  // ← здесь нужна ;
+        if (bankProduct == null) {
+            return new BankProduct();
+        }
         bankProduct.setProductState(ProductState.CLOSED);
         return productRepository.save(bankProduct);
     }
