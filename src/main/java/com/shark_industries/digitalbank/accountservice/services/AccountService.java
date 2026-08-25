@@ -6,6 +6,7 @@ import com.shark_industries.digitalbank.authservice.model.User;
 import com.shark_industries.digitalbank.accountservice.enums.Currency;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -70,6 +71,10 @@ public class AccountService {
             return null;
         }
         return accountRepository.findByUuid(uuid).orElse(null);
+    }
+
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 
 
