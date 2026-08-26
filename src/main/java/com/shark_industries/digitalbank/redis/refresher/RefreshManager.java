@@ -1,6 +1,5 @@
 package com.shark_industries.digitalbank.redis.refresher;
 
-
 import com.shark_industries.digitalbank.accountservice.model.Account;
 import com.shark_industries.digitalbank.accountservice.services.AccountService;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,7 +10,7 @@ import java.util.Set;
 
 
 @Service
-public class RefreshManager implements RedisRefresh{
+public class RefreshManager implements RedisRefresh, PreRefreshAction {
 
 
     private final AccountService accountService;
@@ -23,7 +22,7 @@ public class RefreshManager implements RedisRefresh{
     }
 
     @Override
-    public void refresh(){
+    public void refresh() {
         Set<String> keys = redisTemplate.keys("account:*");
 
         if (keys != null) {
@@ -39,4 +38,11 @@ public class RefreshManager implements RedisRefresh{
         }
 
     }
+
+    @Override
+    public void flushAll() {
+      redisTemplate.getConnectionFactory().getConnection().flushAll();
+    }
+
+
 }

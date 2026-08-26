@@ -76,18 +76,7 @@ public class RedisBatchService {
         }
     }
 
-    public void flushAll(List<? extends RedisRecord> entities){
-        Iterator<? extends RedisRecord> it = entities.iterator();
-        List<String> keys = new ArrayList<>();
 
-        while (it.hasNext()) {
-            keys.add(String.valueOf(it.next().getKey()));
-        }
-
-        if (!keys.isEmpty()) {
-            redisTemplate.delete(keys);
-        }
-    }
 
 
 
