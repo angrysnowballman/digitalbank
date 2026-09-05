@@ -8,17 +8,16 @@ import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.Connection;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.DirectMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -89,6 +88,17 @@ public class RabbitMQService implements BrockerHandler {
     }
 
     @Override
+    public <T> void sendMessage(String queueName, T payLoad) throws QueueNotExistException {
+
+    }
+
+    @Override
+    public void createQueue(String queueName, boolean durable, boolean exclusive, boolean autoDelete, Map<String, Object> arguments) {
+        Queue queue = new Queue(queueName);
+        rabbitAdmin.declareQueue(queue);
+    }
+
+    @Override
     public void createListener(String queueName, MessageListener messageListener, int consumerCount) throws QueueNotExistException {
         Queue queue = new Queue(queueName);
 
@@ -101,7 +111,6 @@ public class RabbitMQService implements BrockerHandler {
         container.setQueueNames(queueName);
         container.setMessageListener(messageListener);
 
-
         if (consumerCount > 0) {
             container.setConcurrentConsumers(consumerCount);
         }
@@ -111,15 +120,14 @@ public class RabbitMQService implements BrockerHandler {
         container.start();
     }
 
+    @Override
+    public void stopListener(String queueName) {
+
+    }
+
     public void stopAllListeners() {
         containers.forEach(SimpleMessageListenerContainer::stop);
         containers.clear();
     }
 
-    // другая QUeue
-    @Override
-    public void createQueue(String queueName) {
-        Queue queue = new Queue(queueName, true, false, false);
-        rabbitAdmin.declareQueue(queue);
-    }
 }

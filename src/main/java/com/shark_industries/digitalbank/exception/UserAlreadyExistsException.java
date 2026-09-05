@@ -3,10 +3,17 @@ package com.shark_industries.digitalbank.exception;
 public class UserAlreadyExistsException
         extends RuntimeException {
 
+    private final String code;
 
-    public UserAlreadyExistsException(String message){
+
+
+    public UserAlreadyExistsException(String message, String code){
         //почему Super
-        super(message);
+        this.code = code;
+        super(message) ;
     }
 
+    public String getCode() {
+        return code;
+    }
 }
