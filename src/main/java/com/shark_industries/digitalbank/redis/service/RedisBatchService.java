@@ -1,52 +1,62 @@
 package com.shark_industries.digitalbank.redis.service;
 
 import com.shark_industries.digitalbank.redis.interfaces.RedisRecord;
+import com.shark_industries.digitalbank.redis.refresher.PreRefreshAction;
 import jakarta.validation.Valid;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Slf4j
 @Service
-public class RedisBatchService {
-    private final int batchSize = 100;
-    private final RedisTemplate<String, String> redisTemplate;
+public class RedisBatchService implements PreRefreshAction {
 
-    public RedisBatchService(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    @Setter
+    private int batchSize = 100;
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     public void batchMSet(List<? extends RedisRecord> entities) {
         Iterator<? extends RedisRecord> it = entities.iterator();
+
         while (it.hasNext()) {
             Map<String, String> map = new HashMap<>(batchSize);
+            int counter = 0;
 
-            int count = 0;
-            while (it.hasNext() && count < batchSize) {
+            while (counter < batchSize && it.hasNext()) {
                 RedisRecord entity = it.next();
                 map.put(entity.getKey(), entity.getValue());
-                count++;
+                // правильно??? ************************************************
+                counter++;
             }
 
             redisTemplate.opsForValue().multiSet(map);
         }
     }
 
-    public Map<String, String> batchMGet(List<? extends RedisRecord> entities) {
+    public Map<String, String> batchMGet(List<? extends RedisRecord> keyGenerators) {
         Map<String, String> result = new HashMap<>();
 
-        Iterator<? extends RedisRecord> it = entities.iterator();
+        Iterator<? extends RedisRecord> it = keyGenerators.iterator();
+
         while (it.hasNext()) {
             List<String> keys = new ArrayList<>(batchSize);
 
-            int count = 0;
-            while (it.hasNext() && count < batchSize) {
+            int counter = 0;
+
+            while (counter < batchSize && it.hasNext()) {
                 keys.add(it.next().getKey());
-                count++;
+                counter++;
             }
 
-            var values = redisTemplate.opsForValue().multiGet(keys);
+            List<String> values = redisTemplate.opsForValue().multiGet(keys);
+
             if (values != null) {
                 for (int i = 0; i < keys.size(); i++) {
                     String value = values.get(i);
@@ -59,25 +69,26 @@ public class RedisBatchService {
 
         return result;
     }
-    // TODO : flushAll через интерфейс, ButchDelete, интерфейс refresh -> Refreshmanager, Tests
-    public void deleteBatch(List<? extends RedisRecord> entities) {
-        Iterator<? extends RedisRecord> it = entities.iterator();
-        while (it.hasNext()) {
-            Map<String, String> map = new HashMap<>(batchSize);
 
-            int count = 0;
-            while (it.hasNext() && count < batchSize) {
-                RedisRecord entity = it.next();
-                map.remove(entity.getKey(), entity.getValue());
-                count++;
+    public void batchDelete(List<? extends RedisRecord> entities) {
+        Iterator<? extends RedisRecord> it = entities.iterator();
+
+        while (it.hasNext()) {
+            List<String> list = new ArrayList<>(batchSize);
+            int counter = 0;
+
+            while (counter < batchSize && it.hasNext()) {
+                list.add(it.next().getKey());
+                counter++;
             }
 
-            redisTemplate.opsForValue().multiSet(map);
+            redisTemplate.delete(list);
         }
     }
 
-
-
-
+    @Override
+    public void flushAll() {
+        redisTemplate.getConnectionFactory().getConnection().serverCommands().flushAll();
+    }
 
 }

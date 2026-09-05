@@ -1,48 +1,22 @@
 package com.shark_industries.digitalbank.redis.refresher;
 
-import com.shark_industries.digitalbank.accountservice.model.Account;
-import com.shark_industries.digitalbank.accountservice.services.AccountService;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Set;
 
+@Component
+public class RefreshManager {
 
-@Service
-public class RefreshManager implements RedisRefresh, PreRefreshAction {
+    private final List<RedisRefresh> refreshList;
+    private final PreRefreshAction preRefreshAction;
 
-
-    private final AccountService accountService;
-    private final RedisTemplate<String, Object> redisTemplate;
-
-    public RefreshManager(AccountService accountService, RedisTemplate<String, Object> redisTemplate) {
-        this.accountService = accountService;
-        this.redisTemplate = redisTemplate;
+    public RefreshManager(List<RedisRefresh> refreshList, PreRefreshAction preRefreshAction) {
+        this.refreshList = refreshList;
+        this.preRefreshAction = preRefreshAction;
     }
 
-    @Override
-    public void refresh() {
-        Set<String> keys = redisTemplate.keys("account:*");
-
-        if (keys != null) {
-            redisTemplate.delete(keys);
-        }
-
-        List<Account> accounts = accountService.getAllAccounts();
-
-        for (Account account : accounts) {
-            String key = "account:" + account.getAccountId();
-            //что это вообще
-            redisTemplate.opsForValue().set(key, account);
-        }
-
+    public void refreshAllCache() {
+        preRefreshAction.flushAll();
+        refreshList.forEach(RedisRefresh::refreshCache);
     }
-
-    @Override
-    public void flushAll() {
-      redisTemplate.getConnectionFactory().getConnection().flushAll();
-    }
-
-
 }
